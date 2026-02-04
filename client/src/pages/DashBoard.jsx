@@ -11,7 +11,7 @@ const DashBoard = () => {
   const[uploadresume , setuploadresume]=useState(false)
   const[title, settitle]= useState('')
   const[resume, setresume]= useState(null)
-  const[resumeId, setresumeId]= useState('')
+  const[editresumeId, setEditResumeId]= useState('')
   
   const navigate=useNavigate();
 
@@ -34,6 +34,14 @@ const DashBoard = () => {
     e.preventDefault();
     setuploadresume(false);
     navigate(`app/builder/res123`)
+  }
+  const editTitle=async(e)=>{
+    e.preventDefault();
+  }
+
+  const deleteResume=async(resumeId)=>{
+    const confirm=window.confirm("Are You sure you want to delete this resume ?")
+    setallResumes(prev=>prev.filter(resume=>resume._id!==resumeId));
   }
   return (
     <div>
@@ -89,9 +97,9 @@ const DashBoard = () => {
                 <p className="absolute text-[12px] bottom-1 text-slate-600 group-hover:text-slate-950 transition-all duration-300 text-center py-2" style={{color:baseColor+  '40'}}>
                   Updated on {new Date(resume.updatedAt).toLocaleDateString()}
                 </p>
-                <div className="absolute top-1 right-1 group-hover:flex items-center hidden  ">
-                  <Trash2Icon className="size-7 p-1.5 hover:bg-white rounded text-slate-700 transition-colors"    />
-                  <PenBoxIcon className="size-7 p-1.5 hover:bg-white/50  transition-colors rounded text-slate-700   "/>
+                <div onClick={e=>e.stopPropagation()} className="absolute top-1 right-1 group-hover:flex items-center hidden  ">
+                  <Trash2Icon onClick={()=>deleteResume(resume._id)} className="size-7 p-1.5 hover:bg-white rounded text-slate-700 transition-colors"    />
+                  <PenBoxIcon onClick={()=>{setEditResumeId(resume._id);settitle(resume.title)}} className="size-7 p-1.5 hover:bg-white/50  transition-colors rounded text-slate-700   "/>
                 </div>
               </button>
             );
@@ -142,6 +150,21 @@ const DashBoard = () => {
             <button className="w-full py-4 bg-green-500 text-white hover:bg-green-700 rounded transition-colors">Upload Resume </button>
             <XIcon className="absolute top-4 right-4 text-slate-500 hover:text-slate-700 cursor-pointer transition-colors" onClick={()=>{
               setuploadresume(false);settitle('')
+            }}/>
+            </div>
+          </form>
+        }
+
+
+        {
+          editresumeId && 
+          <form onSubmit={editTitle} onClick={()=>{setEditResumeId('')}} className="fixed inset-0 z-10 bg-black/70 backdrop-blur bg-opacity-50 flex items-center justify-center">
+            <div onClick={e=>e.stopPropagation()} className="absolute border p-6 w-full max-w-sm bg-slate-50 shadow-md rounded-lg ">
+              <h2 className="text-xl mb-4 font-bold">Edit  Resume Title </h2>
+              <input onChange={(e)=>{ settitle(e.target.value)}} value={title} type="text" placeholder="Enter Resume" className="w-full py-2 px-4 mb-3   focus:border-green-500  ring-green-500" required/>
+            <button className="w-full py-4 bg-green-500 text-white hover:bg-green-700 rounded transition-colors">Update Resume</button>
+            <XIcon className="absolute top-4 right-4 text-slate-500 hover:text-slate-700 cursor-pointer transition-colors" onClick={()=>{
+              setEditResumeId('');settitle('')
             }}/>
             </div>
           </form>
