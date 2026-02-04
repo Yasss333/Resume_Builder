@@ -15,3 +15,9 @@ onClick={e=>e.stopPropagation()}
   }
    
 }
+            style={width:`%{activeSectionIndex * 100}/{sections.length-1}`} />
+
+             <PersonalInfoForm data={resumeData.personal_info} onChange={(data)=>{
+                  setresumeData(prev=>({...prev, personal_info:data
+                  }))
+                }}/>
