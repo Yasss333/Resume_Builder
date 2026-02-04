@@ -21,3 +21,7 @@ onClick={e=>e.stopPropagation()}
                   setresumeData(prev=>({...prev, personal_info:data
                   }))
                 }}/>
+
+
+                  <TemplateSelector  selectedTemplate={resumeData.template} 
+                onChange={(template)=> setresumeData(prev=>({ ...prev, template})) }/>

@@ -20,9 +20,12 @@ import {
   User,
 } from "lucide-react";
 import PersonalInfoForm from "../components/PersonalInfoForm.jsx";
+import ResumePreview from "../components/ResumePreview.jsx";
+import TemplateSelector from "../components/TemplateSelector.jsx";
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
+
   const [resumeData, setresumeData] = useState({
     _id: "",
     title: "",
@@ -38,7 +41,7 @@ const ResumeBuilder = () => {
   });
 
   const loadExistingResume = async (resumeId) => {
-    const resume = await dummyResumeData.find(
+    const resume =  dummyResumeData.find(
       (resume) => resume._id === resumeId,
     );
     if (resume) {
@@ -48,8 +51,13 @@ const ResumeBuilder = () => {
   };
 
   useEffect(() => {
-    loadExistingResume();
-  }, []);
+    if (resumeId) {
+      loadExistingResume(resumeId);
+    }
+    console.log("resumeId:", resumeId);
+    console.log("dummy data:", dummyResumeData);
+
+  }, [resumeId]);
 
   const [activeSectionIndex, setactiveSectionIndex] = useState(0);
   const [removeBackgorund, setremoveBackgorund] = useState(false);
@@ -64,8 +72,6 @@ const ResumeBuilder = () => {
   ];
 
   const activeSection = sections[activeSectionIndex];
-
- 
 
   return (
     <div>
@@ -86,45 +92,76 @@ const ResumeBuilder = () => {
             <div className="bg-white border border-gray-200 rounded-b-lg shadow-sm p-6 pt-1"></div>
             {/* Active section using activesectionIndex */}
             <hr className="absolute margin border-2 border-gray-200 top-0 left-0 right-0 " />
-            <hr className="absolute top-0 left-0 h-1 bg-gradient-r from-green-500 to-green-600 border-none transition-all duration-2000" 
-            style={{width:`${activeSectionIndex * 100}/{sections.length-1}%`}} />
-  
-          {/* Section Navigation */}
-          <div className="flex justify-between items-center border-b border-slate-600 mb-6 py-1">
+            <hr
+              className="absolute top-0 left-0 h-1 bg-gradient-r from-green-500 to-green-600 border-none transition-all duration-2000"
+              style={{
+                width: `${(activeSectionIndex / (sections.length - 1)) * 100}%`,
+              }}
+            />
 
-            <div className=""></div>
-            <div className="flex items-center ">
-              {activeSectionIndex!==0 && (
-                <button onClick={()=>setactiveSectionIndex((prev)=>Math.max(prev-1,0))} className="flex item-center rounded-lg text-sm font-meduim text-slate-600 
-                hover:bg-white-50 transition-all gap -1 p-3 }" disabled={activeSectionIndex===0}>
-                  <ChevronLeft className="size-4"/>Previous
+            {/* Section Navigation */}
+            <div className="flex justify-between items-center border-b border-slate-600 mb-6 py-1">
+              <div>
+                <TemplateSelector  selectedTemplate={resumeData.template} 
+                onChange={(template)=> setresumeData(prev=>({ ...prev, template})) }/>
+              </div>
+              <div className="flex items-center ">
+                {activeSectionIndex !== 0 && (
+                  <button
+                    onClick={() =>
+                      setactiveSectionIndex((prev) => Math.max(prev - 1, 0))
+                    }
+                    className="flex item-center rounded-lg text-sm font-meduim text-slate-600 
+                hover:bg-white-50 transition-all gap -1 p-3 }"
+                    disabled={activeSectionIndex === 0}
+                  >
+                    <ChevronLeft className="size-4" />
+                    Previous
+                  </button>
+                )}
+                <button
+                  onClick={() =>
+                    setactiveSectionIndex((prev) =>
+                      Math.min(prev + 1, sections.length - 1),
+                    )
+                  }
+                  className={`flex item-center rounded-lg text-sm font-meduim text-slate-600 
+                hover:bg-white-50 transition-all gap -1 p-3   ${activeSectionIndex === sections.length - 1 && "opacity-50"}`}
+                  disabled={activeSectionIndex === sections.length - 1}
+                >
+                  <ChevronRight className="size-4" />
+                  Next
                 </button>
-              )}
-                <button onClick={()=>setactiveSectionIndex((prev)=>Math.min(prev+1,sections.length-1))} 
-                className={`flex item-center rounded-lg text-sm font-meduim text-slate-600 
-                hover:bg-white-50 transition-all gap -1 p-3   ${activeSectionIndex===sections.length-1 && 'opacity-50'}`} disabled={activeSectionIndex===sections.length-1 }>
-                  <ChevronRight className="size-4"/>Next
-                </button>
+              </div>
             </div>
-          </div>
-            
+
             {/* Form for inputs */}
             <div className="space-y-6">
-              {activeSection.id==='profile' && (
-                <PersonalInfoForm data={resumeData.personal_info} onChange={(data)=>{
-                  setresumeData(prev=>({...prev, personal_info:data
-                  }))
-                }}   removeBackground={removeBackgorund} 
-                setremoveBackground={setremoveBackgorund}/> 
+              {activeSection.id === "profile" && (
+                <PersonalInfoForm
+                  data={resumeData.personal_info}
+                  onChange={(data) => {
+                    setresumeData((prev) => ({ ...prev, personal_info: data }));
+                  }}
+                  removeBackground={removeBackgorund}
+                  setremoveBackground={setremoveBackgorund}
+                />
               )}
             </div>
           </div>
           {/*Right Panel Preview */}
-          <div></div>
+
+          <div className="lg:col-span-7  max-lg:md-6" >
+            <div>
+              {/* -------BUTTON(live, share ) */}
+            </div>
+            {/* -------Resume Preview---------- */}
+            <ResumePreview data={resumeData} template={resumeData.template} 
+            accentColor={resumeData.accent_color}/>
+              </div>
         </div>
       </div>
     </div>
-
   );
 };
 
