@@ -76,6 +76,7 @@ const DashBoard = () => {
           {resumes.map((resume, index) => {
             const baseColor = colors[index % colors.length];
             return (
+              
               <button
                 key={index} onClick={()=>navigate(`/app/builder/${resume._id}`)}
                 className="group flex flex-col justify-center items-center relative  w-full sm:max-w-36 h-48 rounded-lg border gap-2 hover:shadow-lg transition-all duration-300 cursor-pointer"
