@@ -22,6 +22,7 @@ import {
 import PersonalInfoForm from "../components/PersonalInfoForm.jsx";
 import ResumePreview from "../components/ResumePreview.jsx";
 import TemplateSelector from "../components/TemplateSelector.jsx";
+import ColorPicker from "../components/ColorPicker.jsx";
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
@@ -101,9 +102,10 @@ const ResumeBuilder = () => {
 
             {/* Section Navigation */}
             <div className="flex justify-between items-center border-b border-slate-600 mb-6 py-1">
-              <div>
+              <div className="flex gap-2">
                 <TemplateSelector  selectedTemplate={resumeData.template} 
                 onChange={(template)=> setresumeData(prev=>({ ...prev, template})) }/>
+                <ColorPicker selectedColor={resumeData.accent_color} onChange={}/>
               </div>
               <div className="flex items-center ">
                 {activeSectionIndex !== 0 && (
