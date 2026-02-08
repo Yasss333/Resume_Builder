@@ -23,6 +23,7 @@ import PersonalInfoForm from "../components/PersonalInfoForm.jsx";
 import ResumePreview from "../components/ResumePreview.jsx";
 import TemplateSelector from "../components/TemplateSelector.jsx";
 import ColorPicker from "../components/ColorPicker.jsx";
+import ProffesionalSummary from "../components/ProffesionalSummary.jsx";
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
@@ -31,7 +32,7 @@ const ResumeBuilder = () => {
     _id: "",
     title: "",
     personal_info: {},
-    proffesional_summary: "",
+    professional_summary: "",
     experience: [],
     education: [],
     projects: [],
@@ -79,24 +80,29 @@ const ResumeBuilder = () => {
       <div className="max-w-7xl   mx-auto py-6 px-4">
         <Link
           to={"/app"}
-          className="inline-flex justify-center text-slate-500 gap-2 items-center hover:text-slate-800 border rounded-2xl p-2 hover:border-cyan-300  hover:bg-amber-200 transition-all duration-100"
+          className="inline-flex justify-center text-slate-500 gap-2 items-center hover:text-slate-800 border rounded-2xl p-2 hover:border-cyan-300  hover:bg-green-200 transition-all duration-100"
         >
           <ArrowLeftIcon className="size-4" />
           Back to Dashboard
         </Link>
       </div>
-
+       {/* <div className="max-w-7xl mx-auto px-4 py-5 bg-gray-50 " >
+        <Link to={"/profile"} className="inline-flex  gap-2 justify-center align-center border p-2 rounded-full text-slate-600 hover:text-amber-100 hover:border-gray-700 bg-gray-50 transition-all duration-700 shadow-xl  shadow-amber-700 hover:shadow-amber-200 hover:bg-gray-400">
+        <User className="size-5"/> Go to Profile 
+        </Link>
+       </div> */}
       <div className="max-w-7xl mx-auto px-4 pb-8">
         <div className="grid lg:grid-cols-12 gap-8">
           {/*Left Panel FOrm */}
           <div className="relative lg:col-span-5 rounded-lg overflow-hidden ">
-            <div className="bg-white border border-gray-200 rounded-b-lg shadow-sm p-6 pt-1"></div>
+            <div className=" border-gray-200 rounded-b-lg px-1.5 pt-1"></div>
             {/* Active section using activesectionIndex */}
-            <hr className="absolute margin border-2 border-gray-200 top-0 left-0 right-0 " />
+            <hr className="absolute    border-2 bg-amber-200 border-gray-200 top-0 left-0 right-0 " />
             <hr
-              className="absolute top-0 left-0 h-1 bg-gradient-r from-green-500 to-green-600 border-none transition-all duration-2000"
+              className="absolute top-0 left-0 h-1 bg-gradient-to-r  from-green-500 to-green-600 border-none
+               transition-all duration-2000"
               style={{
-                width: `${(activeSectionIndex / (sections.length - 1)) * 100}%`,
+                width: `${((activeSectionIndex+1 )/ sections.length) * 100}%`,
               }}
             />
 
@@ -105,7 +111,8 @@ const ResumeBuilder = () => {
               <div className="flex gap-2">
                 <TemplateSelector  selectedTemplate={resumeData.template} 
                 onChange={(template)=> setresumeData(prev=>({ ...prev, template})) }/>
-                <ColorPicker selectedColor={resumeData.accent_color} onChange={}/>
+                <ColorPicker selectedColor={resumeData.accent_color}
+                 onChange={(color)=>setresumeData(prev=>({...prev, accent_color:color}))}/>
               </div>
               <div className="flex items-center ">
                 {activeSectionIndex !== 0 && (
@@ -128,7 +135,8 @@ const ResumeBuilder = () => {
                     )
                   }
                   className={`flex item-center rounded-lg text-sm font-meduim text-slate-600 
-                hover:bg-white-50 transition-all gap -1 p-3   ${activeSectionIndex === sections.length - 1 && "opacity-50"}`}
+                hover:bg-white-50 transition-all gap -1 p-3
+                     ${activeSectionIndex === sections.length - 1 && "opacity-50"}`}
                   disabled={activeSectionIndex === sections.length - 1}
                 >
                   <ChevronRight className="size-4" />
@@ -148,6 +156,13 @@ const ResumeBuilder = () => {
                   removeBackground={removeBackgorund}
                   setremoveBackground={setremoveBackgorund}
                 />
+              )}
+              {activeSection.id==="summary" && (
+                <ProffesionalSummary
+                 data={resumeData.professional_summary}
+                onChange={(data)=>{
+                  setresumeData( (prev) =>({...prev,professional_summary:data}))}}
+                 setResumeData={resumeData}/> 
               )}
             </div>
           </div>
