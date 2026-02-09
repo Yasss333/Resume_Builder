@@ -97,7 +97,7 @@ const ResumeBuilder = () => {
       <div className="max-w-7xl mx-auto px-4 pb-8">
         <div className="grid lg:grid-cols-12 gap-8">
           {/*Left Panel FOrm */}
-          <div className="relative lg:col-span-5 bg-white border border-gray-200 shadow-2xl  px-3 py-2 rounded-lg overflow-hidden ">
+          <div className="relative lg:col-span-5 bg-white border border-gray-200 shadow-2xl  px-3 py-2 rounded-lg overflow-y-auto h-[calc(100vh-120px)]">
             <div className=" border-gray-200 rounded-b-lg px-1.5 pt-1"></div>
             {/* Active section using activesectionIndex */}
             <hr className="absolute    border-2 bg-amber-200 border-gray-200 top-0 left-0 right-0 " />
@@ -188,7 +188,7 @@ const ResumeBuilder = () => {
           </div>
           {/*Right Panel Preview */}
 
-          <div className="lg:col-span-7  max-lg:md-6" >
+          <div className="lg:col-span-7 max-lg:md-6 h-[calc(100vh-120px)]" >
             <div>
               {/* -------BUTTON(live, share ) */}
             </div>

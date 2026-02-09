@@ -35,7 +35,8 @@ const TemplateSelector = ({selectedTemplate, onChange}) => {
         <span className='max-sm:hidden'>Template</span>
         </button>
         {isOpen && (
-        <div className='absolute top-full w-64 p-3 mt-2 space-y-3 z-10 bg-white rounded-md border border-gray-200
+        <div className='absolute top-full h-auto scroll-auto w-64 p-3 mt-2 space-y-3 
+        z-20 bg-white rounded-md border border-gray-200
         shadow-sm  '>
             {templates.map((temp)=>{ 
                  return <div key={temp.id} onClick={()=>{onChange(temp.id); setisOpen(false)}}

@@ -24,11 +24,11 @@
     };
 
     return (
-      <div className="w-full bg-gray-100">
+      <div className="w-full bg-gray-100 max-h-screen overflow-auto">
         <div
           id="resume-preview"
           className={
-            "border border-gray-100  print:shadow-none print:border-none + classes"
+            "border border-gray-100  print:shadow-none print:border-none " + classes
           }
         >
           {renderTemplate()}

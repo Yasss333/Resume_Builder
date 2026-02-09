@@ -74,7 +74,7 @@ const Education = ({ data, onChange }) => {
                     
                         
                         <input type="month"
-                        onChange={(e)=>updateEducation(index,"degree",e.target.value)}
+                        onChange={(e)=>updateEducation(index,"graduation_date",e.target.value)}
                         className="px-2 py-2 rounded-lg text-sm " 
                         value={education.graduation_date || ""}  />
                          
