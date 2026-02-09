@@ -25,3 +25,8 @@ onClick={e=>e.stopPropagation()}
 
                   <TemplateSelector  selectedTemplate={resumeData.template} 
                 onChange={(template)=> setresumeData(prev=>({ ...prev, template})) }/>
+
+
+                 const removeSkill=(indexToRemove)=>{
+                onChange(data.filter((_,index)=>index !==indexToRemove))
+       }
