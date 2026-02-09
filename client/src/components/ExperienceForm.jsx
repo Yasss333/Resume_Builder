@@ -1,5 +1,5 @@
-import { Briefcase, Plus, Sparkles, Trash2 } from "lucide-react";
 import React from "react";
+import { Briefcase, Plus, Sparkles, Trash2 } from "lucide-react";
 
 const ExperienceForm = ({ data, onChange }) => {
   const addExperience = () => {
@@ -49,7 +49,7 @@ const ExperienceForm = ({ data, onChange }) => {
           <Briefcase className="w-12 h-12 mx-auto mb-3 text-gray-400" />
           <p>No Work Experience added yet.</p>
           <p className="text-xs">
-            {" "}
+            
             CLick "Add Expreince" to fill out the experince section{" "}
           </p>
         </div>
