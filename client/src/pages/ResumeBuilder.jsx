@@ -24,6 +24,8 @@ import ResumePreview from "../components/ResumePreview.jsx";
 import TemplateSelector from "../components/TemplateSelector.jsx";
 import ColorPicker from "../components/ColorPicker.jsx";
 import ProffesionalSummary from "../components/ProffesionalSummary.jsx";
+import ExperienceForm from "../components/ExperienceForm.jsx";
+import Education from "../components/Education.jsx";
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
@@ -164,6 +166,23 @@ const ResumeBuilder = () => {
                   setresumeData( (prev) =>({...prev,professional_summary:data}))}}
                  setResumeData={resumeData}/> 
               )}
+              {
+                activeSection.id ==="experience" &&(
+                  <ExperienceForm data={resumeData.experience}
+                  onChange={(data)=>{
+                    setresumeData((prev)=> ({...prev,experience:data})) 
+                  }} />
+                )
+              }
+              {
+                activeSection==="education" && (
+                  <Education data={resumeData.education}
+                  onChange={(e)=>{
+                    setresumeData((prev)=>({...prev,education:data}))
+                  }}
+                  />
+                )
+              }
             </div>
           </div>
           {/*Right Panel Preview */}

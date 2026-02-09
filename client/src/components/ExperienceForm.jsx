@@ -1,46 +1,142 @@
-import { Plus } from 'lucide-react'
-import React from 'react'
+import { Briefcase, Plus, Sparkles, Trash2 } from "lucide-react";
+import React from "react";
 
-const ExperienceForm = ({data, onChange}) => {
-  
-    const addExperience=()=>{
-        const newExperience={
-            company:"",
-            position:"",
-            start_date:"",
-            end_date:"",
-            description:"",
-            is_current:false    
-        }
-        onChange([...data, newExperience]); 
-    }
+const ExperienceForm = ({ data, onChange }) => {
+  const addExperience = () => {
+    const newExperience = {
+      company: "",
+      position: "",
+      start_date: "",
+      end_date: "",
+      description: "",
+      is_current: false,
+    };
+    onChange([...data, newExperience]);
+  };
 
-    const removeExperince=(index)=>{
-      const updated=data.filter(_,i)
-    }
-  
-    return (
-    <div className='space-y-6'>
-      <div className='flex justify-between  items-center '>
-            <div className=''>
-               <h3 className='flex items-center gap-2 text-lg font-semibold text-gray-900'>Enter Experience</h3>
-            </div>
-            <button className='inline-flex items-center px-3  py-1 gap-2  bg-purple-200 text-purple-600 rounded
-            text-sm hover:bg-purple-300 border border-transparent    hover:border-purple-900 transition-colors disabled:opcaity-50 disabled:cursor-not-allowed'>
+  const removeExperince = (index) => {
+    const updated = data.filter((_, i) => {
+      i !== index;
+    });
+    onChange(updated);
+  };
 
-                Add Exp
-                <Plus className='size-4 '/>
-            </button>
+  const updateExperience = (index, field, value) => {
+    const updated = [...data];
+    updated[index] = { ...updated[index], [field]: value };
+    onChange(updated);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between  items-center ">
+        <div className="">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+            Enter Experience
+          </h3>
         </div>
-            <div className='mt-6'>
-                <textarea value={data ||""} onChange={(e)=>onChange(e.target.value)} rows={7} className='w-full
-                 p-4 px-4 mt-2 border text-sm 
-                border-gray-300 rounded-lg focus:ring focus:ring-blue-500    outline-none
-                transition-colors resize-none' placeholder='Write a compleelling proffesional summary '/>
-                <p className='tetx-xs text-center text-slate-800 max-w-4/5'><span className='text-gray-900 font-semibold'>Tip :</span>Please keep it concise </p>
+        <button
+          onClick={addExperience}
+          className="inline-flex items-center px-3  py-1 gap-2  bg-green-200 text-green-600 rounded-lg
+            text-sm hover:bg-green-300 border border-transparent    hover:border-green-600 transition-colors disabled:opcaity-50 disabled:cursor-not-allowed"
+        >
+          Add Experience
+          <Plus className="size-4 " />
+        </button>
+      </div>
+      {data.length === 0 ? (
+        <div className="text-center text-gray-500">
+          <Briefcase className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+          <p>No Work Experience added yet.</p>
+          <p className="text-xs">
+            {" "}
+            CLick "Add Expreince" to fill out the experince section{" "}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {data.map((experince, index) => (
+            <div
+              key={index}
+              className="p-4 border border-gray-200 
+                    rounded-lg space-y-3"
+            >
+              <div className="flex justify-between items-start">
+                <h4>Experience #{index + 1}</h4>
+                <button
+                  onClick={() => {
+                    removeExperince(index);
+                  }}
+                  className="text-red-400 hover:text-red-700 transition-colors"
+                >
+                  <Trash2 className="size-4" />
+                </button>
+              </div>
+              <div className="grid md:grid-cols-2 gap-3">
+                <input
+                  type="text"
+                  onChange={(e) => {
+                    updateExperience(index, "company", e.target.value);
+                  }}
+                  className="px-2 py-3 rounded-lg text-sm"
+                  value={experince.company || ""}
+                  placeholder="Enter COmpany name"
+                />
+                <input
+                  type="text"
+                  onChange={(e) => {
+                    updateExperience(index, "position", e.target.value);
+                  }}
+                  className="px-2 py-3 rounded-lg text-sm"
+                  value={experince.position || ""}
+                  placeholder="Enter Job title "
+                />
+                <input
+                  type="month"
+                  onChange={(e) => {
+                    updateExperience(index, "start_date", e.target.value);
+                  }}
+                  className="px-2 py-3 rounded-lg text-sm"
+                  value={experince.start_date || ""}
+                />
+                <input
+                  type="month"
+                  onChange={(e) => {
+                    updateExperience(index, "end_date", e.target.value);
+                  }}
+                  disabled={experince.is_current}
+                  className="px-2 py-3 rounded-lg text-sm disabled:bg-gray-500"
+                  value={experince.end_date || ""} 
+                />
+              </div>
+              <label className="flex gap-2 items-center">
+                <input type="checkbox" checked={experince.is_current ||false}
+                 onChange={(e)=>{updateExperience(index,"is_current",e.target.checked ?true:false)}}
+                 className="rounded border-gray-300 text-blue-600
+                  focus:ring-blue-500"
+                  />
+                  <span className="text-sm test-gray-700">Currently working here </span>
+              </label>
+              <div className="space-y-2">
+                <div className="flex justify-between mt-3  ">
+                  <h3>Job Description </h3>
+                  <button className=" flex bg-gradient-to-br from-purple-50
+                   to-purple-400 text-purple-700 hover:bg-purple-200 transition-colors 
+                  disabled:opacity-50 text-sm  rounded-lg px-3 py-1  border-transparent border-1 hover:border-purple-950 ">
+                    AI Enhance  <Sparkles className="w-4 h-4 ml-2 mt-1 pt-0.5 "/>
+                  </button>
+                </div>
+                  <textarea value={experince.description||""}
+                   rows={4} className="w-full text-sm px-3 py-2 rounded-lg  border resize-none "
+                   onChange={(e)=>{updateExperience(index,"description",e.target.value)}}
+                   />
+              </div>
             </div>
+          ))}
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default ExperienceForm
+export default ExperienceForm;
