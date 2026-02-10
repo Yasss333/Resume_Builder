@@ -276,7 +276,7 @@ const ResumeBuilder = () => {
                 <button onClick={downloadResume} className="flex gap-2 items-center rounded-lg  bg-gradient-to-br from-green-100 to-green-300
                  ring-green-300 text-xs hover:ring px-4 p-2 transition-colors ">
                   <DownloadIcon className="size-4"/>
-                  <p>Download</p>
+                  <p>Download</p>   
                 </button>
               </div>
             </div>
