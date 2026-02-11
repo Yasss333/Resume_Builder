@@ -1,5 +1,5 @@
-import Resume from "../models/resuem.model";
-import User from "../models/user";
+import Resume from "../models/resuem.model.js";
+import User from "../models/user.js";
 import bcrypt from 'bcrypt'
 
 const generateToken=(userId)=>{
@@ -100,7 +100,7 @@ export const getUserId=async(req,res)=>{
 //controller for getting user resumes
 //get:api/user/resumes
 
-export const getUserResume=async(res,res)=>{
+export const getUserResume=async(req,res)=>{
     try {
         const userId=req.userId;
         const resume= await Resume.findOne({userId});

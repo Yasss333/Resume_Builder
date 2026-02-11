@@ -3,6 +3,8 @@ import "dotenv/config";
 import cors from "cors"
 import dbConnect from "./dbconfig/db.js";
 import router from "./Routes/userRoutes.js";
+import resumeRouter from "./Routes/resume.router.js";
+import AIRouter from "./Routes/aiRoutes.js";
 const app=express();
 
 const PORT=process.env.PORT ?? 3000;
@@ -11,6 +13,9 @@ await dbConnect()
 app.use(express.json())
 app.use(cors());
 app.use("/api/user",router)
+app.use("/app/resume",resumeRouter)
+app.use("api/ai",AIRouter)
+
 app.get("/",(req,res)=>{
     return res.send("Hello frm server")
 })

@@ -36,9 +36,7 @@ const ResumeSchema= new mongoose.Schema({
             type:String,
             default:""
         },
-        //personal_infois a object with obhject iameg , full_name, 
-// proffesion, email , phone , location,
-//website 
+ 
         skills:[{type:String}],
 
        personal_info:{
