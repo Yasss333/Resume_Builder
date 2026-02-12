@@ -1,5 +1,5 @@
 import express from "express";
-import verifyJWT from "../middlewares/Authmiddleware";
+import verifyJWT from "../middlewares/Authmiddleware.js";
 import { createResumeHandler, deleteResumehandler, getPublicResumeById, getResumeById, updateResumeHandler } from "../Controller/resumeController.js";
 import upload from "../config/multer.js";
 

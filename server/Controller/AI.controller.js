@@ -1,8 +1,8 @@
 //this controller is for the ai used to enhance the text
 
 import { response } from "express";
-import openai from "../config/ai";
-import Resume from "../models/resuem.model";
+import openai from "../config/ai.js";
+import Resume from "../models/resuem.model.js";
 
 //POST:/api/ai/ehance-pro-sum
 

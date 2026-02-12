@@ -1,5 +1,5 @@
 import express from "express";
-import verifyJWT from "../middlewares/Authmiddleware";
+import verifyJWT from "../middlewares/Authmiddleware.js";
 import { enhanceJobDescription, enhanceProfessionalSummary, uploadResume } from "../Controller/AI.controller.js";
 
 const AIRouter=express.Router();
