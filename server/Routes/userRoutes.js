@@ -4,7 +4,7 @@ import verifyJWT from "../middlewares/Authmiddleware.js";
 
 const router=express.Router();
 
-router.post("/registeruser",userregisterhandler);
+router.post("/register",userregisterhandler);
 router.post('/login',loginUser);
 router.get("/data",verifyJWT,getUserId)
 router.get("/resumes",verifyJWT,getUserResume)

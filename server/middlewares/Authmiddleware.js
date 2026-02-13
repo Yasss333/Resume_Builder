@@ -7,9 +7,16 @@ import jwt, { decode } from "jsonwebtoken";
 
 const verifyJWT=async(req,res,next)=>{
     try {
-        const token= req.headers.authorization;
+       const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Expect: "Bearer token"
+    const token = authHeader.split(" ")[1];
         if(!token){
-            res.status(200).json({message:" you are Unauthorized "})
+           return  res.status(200).json({message:" you are Unauthorized "})
         }
         
         const decoded=jwt.verify(token,process.env.JWT_SECRET);
@@ -17,6 +24,8 @@ const verifyJWT=async(req,res,next)=>{
         
         next();
     } catch (error) {
+        console.log(error.message);
+        
         res.status(400).json({message:" Failed to verify JWT  "},error)
     }
 
