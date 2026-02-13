@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { FilePenLineIcon, PenBoxIcon, Plus, Trash2Icon, Upload, UploadCloudIcon, XIcon } from "lucide-react";
 
+import api from '../../configs/api';
 import {Navigate, useNavigate} from "react-router-dom"
 import { dummyResumeData } from "../assets/assets";
+import {useSelector} from "react-redux"
+import toast from "react-hot-toast";
 
 const DashBoard = () => {
+
+  const {user,token}=useSelector(state=>state.auth) ;
+
   const colors = ["#d97706", "#dc2626", "#0284c7", "#9333ea", "#16a34a"];
   const [resumes, setallResumes] = useState([]);
   const[createresume , setcreateResume]=useState(false)
@@ -24,9 +30,20 @@ const DashBoard = () => {
   }, []);
 
   const createResume=async(e)=>{
-     e.preventDefault();
-     setcreateResume(true);
-     navigate(`/app/builder/res123`)
+    try {
+       e.preventDefault();
+      const {data}= await api.post('/api/resumes/create',{title},{
+        headers:{Authorization:`Bearer ${token}`}
+      })
+      setallResumes([...resumes,data.resume])
+      settitle('')
+      setcreateResume(false)
+      navigate('/app/builder/data.resume._id')
+     } catch (error) {
+      toast.error(error?.response?.data?.message|| error.message)
+     }
+    //  setcreateResume(true);
+    //  navigate(`/app/builder/res123`)
      
   }
    
