@@ -32,7 +32,7 @@ const DashBoard = () => {
   const createResume=async(e)=>{
     try {
        e.preventDefault();
-      const {data}= await api.post('/api/resumes/create',{title},{
+      const {data}= await api.post('/api/resume/create',{title},{
         headers:{Authorization:`Bearer ${token}`}
       })
       setallResumes([...resumes,data.resume])
