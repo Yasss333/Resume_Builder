@@ -1,6 +1,7 @@
 import Resume from "../models/resuem.model.js";
 import User from "../models/user.js";
 import bcrypt from 'bcrypt'
+import jwt from "jsonwebtoken";
 
 const generateToken=(userId)=>{
     return jwt.sign({userId},process.env.JWT_SECRET,{expiresIn:'7d'})
