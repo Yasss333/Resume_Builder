@@ -114,10 +114,10 @@ const DashBoard = () => {
   const deleteResume = async (resumeId) => {
     try {
       const confirm = window.confirm(
-        "Are You sure you want to delete this resume ?",
+        "Are You sure you want to delete this resume ? " ,
       );
       if (confirm) {
-        const { data } = await api.delete(`api/resumes/delete/${resumeId}`, {
+        const { data } = await api.delete(`api/resume/delete/${resumeId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setallResumes(resumes.filter((resume) => resume._id !== resumeId));
@@ -251,52 +251,35 @@ const DashBoard = () => {
           </form>
         )}
         {uploadresume && (
-          <form
-            onSubmit={uploadResume}
-            onClick={() => {
-              setuploadresume(false);
-            }}
-            className="fixed inset-0 z-10 bg-black/70 backdrop-blur bg-opacity-50 flex items-center justify-center"
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="absolute border p-6 w-full max-w-sm bg-slate-50 shadow-md rounded-lg "
+            <div className="fixed inset-0 z-20 flex items-center justify-center">
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/70 backdrop-blur bg-opacity-50 z-10" onClick={() => { if (!isLoading) setuploadresume(false); }} />
+            {/* Modal */}
+            <form
+              onSubmit={uploadResume}
+              className="relative border p-6 w-full max-w-sm bg-slate-50 shadow-md rounded-lg z-20"
+              onClick={e => e.stopPropagation()}
             >
               <h2 className="text-xl mb-4 font-bold">Upload Resume</h2>
               <input
                 type="text"
-                onChange={(e) => {
-                  e.target.value;
-                  settitle(e.target.value);
-                }}
+                onChange={e => settitle(e.target.value)}
                 value={title}
                 placeholder="Enter Resume"
                 className="w-full py-2 px-3  mb-3   focus:border-green-500  ring-green-500"
                 required
+                disabled={isLoading}
               />
-
               <div>
-                <label
-                  htmlFor="resume-input"
-                  className="block text-sm text-slate-700  "
-                >
+                <label htmlFor="resume-input" className="block text-sm text-slate-700">
                   Select Resume File
-                  <div
-                    className="flex flex-col justify-center items-center border border-dashed border-slate-700 p-4 py-10 hover:border-green-500 rounded-md 
-             text-slate-400 my-4 gap-2 hover:text-green-400 cursor-pointer transition-colors"
-                  >
+                  <div className="flex flex-col justify-center items-center border border-dashed border-slate-700 p-4 py-10 hover:border-green-500 rounded-md text-slate-400 my-4 gap-2 hover:text-green-400 cursor-pointer transition-colors">
                     {resume ? (
-                      <p className="text-green-400">{resume.name} </p>
+                      <p className="text-green-400">{resume.name}</p>
                     ) : (
                       <>
                         <UploadCloudIcon className="size-14 strike-1" />
-                        <p>
-                          {isLoading && (
-                            <LoaderCircleIcon className="animate-spin size-4 text-white" />
-                          )}
-                          {isLoading ? "Uploading..." : "Upload Resume"}
-                          Upload Resume
-                        </p>
+                        <p>Upload Resume</p>
                       </>
                     )}
                   </div>
@@ -306,22 +289,28 @@ const DashBoard = () => {
                   id="resume-input"
                   accept=".pdf"
                   hidden
-                  onChange={(e) => setresume(e.target.files[0])}
+                  onChange={e => setresume(e.target.files[0])}
+                  disabled={isLoading}
                 />
               </div>
-
-              <button className="w-full py-4 bg-green-500 text-white hover:bg-green-700 rounded transition-colors">
-                Upload Resume{" "}
+              <button disabled={isLoading} className="flex items-center justify-center w-full py-4 bg-green-500 text-white hover:bg-green-700 rounded transition-colors mt-2">
+                {isLoading && <LoaderCircleIcon className="animate-spin size-4 text-white mr-2" />}
+                {isLoading ? "Uploading..." : "Upload Resume"}
               </button>
               <XIcon
                 className="absolute top-4 right-4 text-slate-500 hover:text-slate-700 cursor-pointer transition-colors"
-                onClick={() => {
-                  setuploadresume(false);
-                  settitle("");
-                }}
+                onClick={() => { if (!isLoading) { setuploadresume(false); settitle(""); } }}
+                style={{ pointerEvents: isLoading ? 'none' : 'auto', opacity: isLoading ? 0.5 : 1 }}
               />
-            </div>
-          </form>
+              {/* Loading overlay */}
+              {isLoading && (
+                <div className="absolute inset-0 bg-white/70 flex flex-col items-center justify-center z-30 rounded-lg">
+                  <LoaderCircleIcon className="animate-spin size-10 text-green-500 mb-2" />
+                  <span className="text-green-700 font-semibold">Parsing and uploading...</span>
+                </div>
+              )}
+            </form>
+          </div>
         )}
 
         {editresumeId && (

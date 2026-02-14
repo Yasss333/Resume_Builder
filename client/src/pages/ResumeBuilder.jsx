@@ -33,9 +33,13 @@ import ExperienceForm from "../components/ExperienceForm.jsx";
 import Education from "../components/Education.jsx";
 import Project from "../components/Project.jsx";
 import SkillsForm from "../components/SkillsForm.jsx";
+import {useSelector} from "react-redux"
+import api from "../../configs/api";
+
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
+  const {token}=useSelector(state=>state.auth)
 
   const [resumeData, setresumeData] = useState({
     _id: "",
@@ -52,12 +56,19 @@ const ResumeBuilder = () => {
   });
      
   const loadExistingResume = async (resumeId) => {
-    const resume = dummyResumeData.find((resume) => resume._id === resumeId);
-    if (resume) {
-      setresumeData(resume);
-      document.title = resume.title;
-    }
-  };
+  try {
+      const {data}=await api.get('/api/resume/get/'+resumeId ,
+        {headers:{Authorization:`Bearer ${token}`}})
+        if(data.resume){
+          setresumeData(data.resume)
+          document.title=data.resume.title
+        } 
+
+  } catch (error) {
+    console.log(error.message);
+    
+  }
+    };
 
   useEffect(() => {
     if (resumeId) {
