@@ -30,3 +30,27 @@ onClick={e=>e.stopPropagation()}
                  const removeSkill=(indexToRemove)=>{
                 onChange(data.filter((_,index)=>index !==indexToRemove))
        }
+
+
+
+
+
+
+
+
+         const editTitle = async (e) => {
+           try {
+             e.preventDefault();
+             const {data}=await api.put(`/api/resme/update`,{resumeId:editresumeId,resumeData:{title}},
+               {headers:{Authorization:`Bearer ${token}`}}
+             )
+             setallResumes(resumes.map(resume=>resume._id===editresumeId ?{ ...resume,
+               title} : resume))
+               settitle('')
+               setEditResumeId('')
+               toast.success(data.message);
+               
+           } catch (error) {
+             
+           }
+         };
