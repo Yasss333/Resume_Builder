@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { FilePenLineIcon, PenBoxIcon, Plus, Trash2Icon, Upload, UploadCloudIcon, XIcon } from "lucide-react";
+import { FilePenLineIcon, LoaderCircleIcon, PenBoxIcon, Plus, Trash2Icon, Upload, UploadCloudIcon, XIcon } from "lucide-react";
 
 import api from '../../configs/api';
 import {Navigate, useNavigate} from "react-router-dom"
 import { dummyResumeData } from "../assets/assets";
 import {useSelector} from "react-redux"
 import toast from "react-hot-toast";
-
+import  pdfToText from "react-pdftotext"
 const DashBoard = () => {
 
   const {user,token}=useSelector(state=>state.auth) ;
@@ -18,11 +18,23 @@ const DashBoard = () => {
   const[title, settitle]= useState('')
   const[resume, setresume]= useState(null)
   const[editresumeId, setEditResumeId]= useState('')
+  const[isLoading, setisLoading]=useState(false);
+
   
   const navigate=useNavigate();
 
   const loadallResumes = async () => {
-    setallResumes(dummyResumeData);
+    // setallResumes(dummyResumeData);
+    try {
+         const {data}= await api.get('/api/user/resumes',{
+        headers:{Authorization:`Bearer ${token}`}
+      })
+      setallResumes(Array.isArray(data.resumes) ? data.resumes : [])
+
+    } catch (error) {
+      toast.error(error?.response?.data?.message|| error.message)
+      
+    }
   };
 
   useEffect(() => {
@@ -38,7 +50,7 @@ const DashBoard = () => {
       setallResumes([...resumes,data.resume])
       settitle('')
       setcreateResume(false)
-      navigate('/app/builder/data.resume._id')
+      navigate(`/app/builder/${data.resume._id}`)
      } catch (error) {
       toast.error(error?.response?.data?.message|| error.message)
      }
@@ -49,8 +61,27 @@ const DashBoard = () => {
    
   const uploadResume=async(e)=>{
     e.preventDefault();
-    setuploadresume(false);
-    navigate(`app/builder/res123`)
+    setisLoading(true);
+    try {
+      console.log("Selected file:", resume);
+      const resumeText=await  pdfToText(resume);
+      console.log(typeof resumeText);
+
+      console.log("Extracted text:", resumeText);
+      // const resumeText = "Test resume content";
+
+      const {data}=await api.post('api/ai/upload-resume',{title,resumeText},
+        {headers:{Authorization:`Bearer ${token}`}})
+        settitle('')
+        setresume(null);
+        setuploadresume(false);
+        navigate(`/app/builder/${data.resumeId}`)
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error.message);
+    }
+     setisLoading(false)
+    // setuploadresume(false);
+    // navigate(`app/builder/res123`)
   }
   const editTitle=async(e)=>{
     e.preventDefault();
@@ -90,7 +121,7 @@ const DashBoard = () => {
 
 
         <div className="grid grid-cols-2 sm:flex flex-wrap gap-4">
-          {resumes.map((resume, index) => {
+          {resumes?.map((resume, index) => {
             const baseColor = colors[index % colors.length];
             return (
               
@@ -154,7 +185,12 @@ const DashBoard = () => {
             ):(
               <>
               <UploadCloudIcon className="size-14 strike-1"/>
-              <p>Upload Resume</p>
+              <p>
+                {isLoading && <LoaderCircleIcon className="animate-spin size-4 text-white" /> }
+                 {isLoading ?"Uploading..." :"Upload Resume"}
+                 Upload Resume 
+
+              </p>
               </>
             )
               

@@ -44,7 +44,7 @@ const ResumeSchema= new mongoose.Schema({
         full_name:{type:String ,default:""},
         proffesion:{type:String ,default:""},
         email:{type:String ,default:""},
-        phone:{type:Number ,default:""},
+        phone:{type:String ,default:""},
         location:{type:String ,default:""},
         linkedin:{type:String ,default:""},
         website:{type:String ,default:""},

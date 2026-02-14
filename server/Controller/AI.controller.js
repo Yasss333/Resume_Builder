@@ -1,9 +1,10 @@
 //this controller is for the ai used to enhance the text
 
 import { response } from "express";
-import openai from "../config/ai.js";
+import genAI from "../config/ai.js";
 import Resume from "../models/resuem.model.js";
-
+import OpenAI from "openai";
+import openai from "../config/ai.js";
 //POST:/api/ai/ehance-pro-sum
 
 export const enhanceProfessionalSummary = async (req, res) => {
@@ -67,79 +68,239 @@ export const enhanceJobDescription = async (req, res) => {
   }
 };
 
-//controller for resume uploads 
+//controller for resume uploads
 //POST:/api/ai/uplaod-resume
+
+//refactoring hte whole contreoller because chanfing the openAI sdk to gemini sdk
 
 export const uploadResume = async (req, res) => {
   try {
-    const { resumetext,title } = req.body;
-    const systemPrompt="you are a expert AI agent which extract data from resumes "
-    const userPrompt=`extract data from this resume :${resumetext}
-    
-    Provide data in the following JSON fromat with no additonal text before or after:
-    {
-      proffession_summary:{
-            type:String,
-            default:""
-        },
- 
-        skills:[{type:String}],
+    const userId = req.userId;
+    const { resumeText, title } = req.body;
+    if (!resumeText || !title) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+    const systemPrompt = `
+You are a highly accurate resume parsing AI.
 
-       personal_info:{
-        image:{type:String,default:""},
-        full_name:{type:String ,default:""},
-        proffesion:{type:String ,default:""},
-        email:{type:String ,default:""},
-        phone:{type:Number ,default:""},
-        location:{type:String ,default:""},
-        linkedin:{type:String ,default:""},
-        website:{type:String ,default:""},
-       },
-       experience:[
-        {
-            company:{type:String},
-            positon:{type:String},
-            start_date:{type:String},
-            end_date:{type:String},
-            description:{type:String},
-            is_current:{type:String},
-        }
-       ],
-       projects:[
-        {
-            name:{type:String},
-            type:{type:String}, 
-            description:{type:String},
-        }
-       ],
-       education:[
-        {
-             institution:{type:String},
-            degree:{type:String},
-            field:{type:String},
-             gpa:{type:Number},
-        } 
-    }`
+Your job is to extract structured information from resume text and return ONLY valid JSON.
+
+Strict rules:
+- Output must be valid JSON.
+- Do NOT include explanations.
+- Do NOT include markdown.
+- Do NOT include comments.
+- Do NOT include schema definitions.
+- Return only real extracted values.
+- If a value is missing, return "" or [].
+- Do not hallucinate information.
+- Boolean fields must be true or false.
+`;
+
+    const userPrompt = `
+Extract structured information from the following resume text.
+
+Return ONLY JSON in this exact format:
+
+{
+  "professional_summary": "",
+  "skills": [],
+  "personal_info": {
+    "image": "",
+    "full_name": "",
+    "profession": "",
+    "email": "",
+    "phone": "",
+    "location": "",
+    "linkedin": "",
+    "website": ""
+  },
+  "experience": [
+    {
+      "company": "",
+      "position": "",
+      "start_date": "",
+      "end_date": "",
+      "description": "",
+      "is_current": false
+    }
+  ],
+  "projects": [
+    {
+      "name": "",
+      "type": "",
+      "description": ""
+    }
+  ],
+  "education": [
+    {
+      "institution": "",
+      "degree": "",
+      "field": "",
+      "gpa": 0
+    }
+  ]
+}
+
+Resume Text:
+${resumeText}
+`;
+
     const response = await openai.chat.completions.create({
-      model: process.env.MODEL_NAME,
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
-          content:systemPrompt
+          content: systemPrompt,
         },
         {
           role: "user",
-          content: userPrompt ,
+          content: userPrompt,
         },
       ],
-      response_format:{type:"json_object"}
+      response_format: { type: "json_object" },
     });
-    const extractedData=response.choices[0].message.content
-    const parsedExtratedData=JSON.parse(extractedData);
-    const newResume=await Resume.create({userId, title, ...parsedExtratedData})
+    // console.log("BASE:", process.env.GEMINI_BASE_URL);
+    console.log("MODEL:", process.env.MODEL_NAME);
 
-    return res.status(200).json({ resumeId:newResume._id})
+    const extractedData = response.choices[0].message.content;
+    const parsedExtratedData = JSON.parse(extractedData);
+
+    const newResume = await Resume.create({
+      userId,
+      title,
+      ...parsedExtratedData,
+    });
+
+    return res.status(200).json({ resumeId: newResume._id });
   } catch (error) {
+    console.log("OPENAI ERROR:", error);
+    // console.log("UPLOAD ERROR:", error);
     return res.status(400).json({ message: error.message });
   }
 };
+
+//this tjhe conroler woithj gemini sdk
+
+// export const uploadResume = async (req, res) => {
+//   try {
+//     const userId = req.userId;
+//     const { resumeText, title } = req.body;
+
+//     if (!resumeText || !title) {
+//       return res.status(400).json({ message: "Missing resume text or title" });
+//     }
+
+//     // 🔹 Get Gemini model
+//     const model = genAI.getGenerativeModel({
+//       model: "models/gemini-1.5-flash"
+//     });
+
+//     // 🔹 System instructions
+//     const systemPrompt = `
+// You are an expert resume parsing AI.
+
+// Your job is to extract structured data from resumes and return ONLY valid JSON.
+
+// Rules:
+// - Output must be strictly valid JSON.
+// - Do not include explanations.
+// - Do not include markdown.
+// - If a field is missing, return "" or [].
+// - Do not hallucinate data.
+// `;
+
+//     // 🔹 User prompt with clean JSON template
+//     const userPrompt = `
+// Extract structured information from this resume.
+
+// Return ONLY valid JSON in this format:
+
+// {
+//   "professional_summary": "",
+//   "skills": [],
+//   "personal_info": {
+//     "image": "",
+//     "full_name": "",
+//     "profession": "",
+//     "email": "",
+//     "phone": "",
+//     "location": "",
+//     "linkedin": "",
+//     "website": ""
+//   },
+//   "experience": [
+//     {
+//       "company": "",
+//       "position": "",
+//       "start_date": "",
+//       "end_date": "",
+//       "description": "",
+//       "is_current": false
+//     }
+//   ],
+//   "projects": [
+//     {
+//       "name": "",
+//       "type": "",
+//       "description": ""
+//     }
+//   ],
+//   "education": [
+//     {
+//       "institution": "",
+//       "degree": "",
+//       "field": "",
+//       "gpa": ""
+//     }
+//   ]
+// }
+
+// Resume Text:
+// ${resumeText}
+// `;
+
+// const response = await openai.chat.completions.create({
+//   model: "gpt-4o-mini",
+//   messages: [
+//     { role: "system", content: SYSTEM_PROMPT },
+//     { role: "user", content: userPrompt },
+//   ],
+// });
+
+//     // 🔹 Generate AI response
+//     // const result = await model.generateContent({
+//     //   contents: [
+//     //     { role: "user", parts: [{ text: systemPrompt + "\n" + userPrompt }] }
+//     //   ],
+//     //   generationConfig: {
+//     //     responseMimeType: "application/json"
+//     //   }
+//     // });
+
+//     // const response = await result.response;
+//     const text = response.text();
+
+//     // 🔹 Safe JSON parse
+//     let parsedData;
+//     try {
+//       parsedData = JSON.parse(text);
+//     } catch (err) {
+//       console.log("AI returned invalid JSON:", text);
+//       return res.status(400).json({ message: "Invalid AI response format" });
+//     }
+
+//     // 🔹 Save to Mongo
+//     const newResume = await Resume.create({
+//       userId,
+//       title,
+//       ...parsedData
+//     });
+
+//     return res.status(200).json({ resumeId: newResume._id });
+
+//   } catch (error) {
+//     console.log("GEMINI ERROR:", error);
+//     return res.status(500).json({ message: "AI processing failed , abhi gemeni key is not working soon will....." });
+//   }
+// };

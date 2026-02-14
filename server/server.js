@@ -13,8 +13,8 @@ await dbConnect()
 app.use(express.json())
 app.use(cors());
 app.use("/api/user",router)
-app.use("/api/resume",resumeRouter)
-app.use("api/ai",AIRouter)
+app.use("/api/resume",resumeRouter) 
+app.use("/api/ai",AIRouter)
 
 app.get("/",(req,res)=>{
     return res.send("Hello frm server")

@@ -35,7 +35,7 @@ const App = () => {
       } catch (error) {
       dispatch(setloading(false));
       console.log(error.message);
-      
+        
     }
    }
 
