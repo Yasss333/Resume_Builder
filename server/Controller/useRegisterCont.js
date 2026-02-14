@@ -101,15 +101,13 @@ export const getUserId=async(req,res)=>{
 //controller for getting user resumes
 //get:api/user/resumes
 
-export const getUserResume=async(req,res)=>{
+export const getUserResume = async (req, res) => {
     try {
-        const userId=req.userId;
-        const resume= await Resume.findOne({userId});
-        return res.status(200).json({message:"User Resume Fetched succesfuly"});
-
+        const userId = req.userId;
+        const resumes = await Resume.find({ userId });
+        return res.status(200).json({ resumes });
     } catch (error) {
-        console.log("Failed to get resume",error.message)
-        
-        return res.status(400).json({message:"Failed to get User by resume "})
+        console.log("Failed to get resumes", error.message);
+        return res.status(400).json({ message: "Failed to get User resumes", error: error.message });
     }
-}
+};

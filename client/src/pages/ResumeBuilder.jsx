@@ -101,6 +101,21 @@ const ResumeBuilder = () => {
 
   const activeSection = sections[activeSectionIndex];
 
+  const handleSaveChanges = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.put('/api/resume/update', {
+        resumeId,
+        resumeData: JSON.stringify(resumeData),
+        removeBackground: removeBackgorund,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert('Resume saved successfully!');
+    } catch (error) {
+      alert(error?.response?.data?.message || error.message);
+    }
+  };
   return (
     <div>
       <div className="max-w-7xl   mx-auto py-6 px-4">
@@ -237,8 +252,8 @@ const ResumeBuilder = () => {
               )}
             </div>
             <button
-              className="bg-gradient-to-br from-green-100 to-green-200  ring-green-200
-            rounded-md ring-2 text-sm px-6 py-2 text-green-600 hover:ring-green-400 hover=bg mt-6 transition-all"
+              className="bg-gradient-to-br from-green-100 to-green-200  ring-green-200 rounded-md ring-2 text-sm px-6 py-2 text-green-600 hover:ring-green-400 hover=bg mt-6 transition-all"
+              onClick={handleSaveChanges}
             >
               Save Changes
             </button>
