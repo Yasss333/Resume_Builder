@@ -12,11 +12,14 @@ const ProffesionalSummary = ({data, setResumeData, onChange}) => {
     const generateSummary=async ()=>{
         try {
             setisGenerating(true)
-            const prompt=`enhance my porffesional summary "${data}"`;
-            const response=await api.post('/api/ai/enhance-pro-sum',{
-                userContent:prompt},
-                {headers:{Authorization:`Bearer ${token}`}})
-                setResumeData(prev=>({...prev, ProffesionalSummary:response.data.enhancedContent}))
+            console.log("This raw data",data);
+            
+                const prompt=`enhance my porffesional summary "${data}"`;
+                const response=await api.post('/api/ai/enhance-pro-sum',{
+                    userContent:prompt},
+                    {headers:{Authorization:`Bearer ${token}`}})
+                setResumeData(prev=>({...prev, professional_summary: response.data.enhancedSolution}))
+                console.log("Enhamede daat : ", response.data.enhancedSolution);
         } catch (error) {
               toast.error(error?.response?.data?.mesage || error.message)            
         }

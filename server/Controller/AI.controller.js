@@ -10,29 +10,31 @@ import openai from "../config/ai.js";
 export const enhanceProfessionalSummary = async (req, res) => {
   try {
     const { userContent } = req.body;
+    const model = process.env.MODEL_NAME || "gpt-4o-mini";
     if (!userContent) {
-      return res
-        .status(400)
-        .json({ message: "User content not provided, missin required fields" });
+      return res.status(400).json({ message: "User content not provided, missing required fields" });
     }
+    if (!model) {
+      return res.status(400).json({ message: "Model name not set in environment" });
+    }
+
+    const systemPrompt = `
+You are a professional resume writer and ATS optimization expert. Your task is to rewrite and enhance the user's professional summary to make it clear, concise, and professional. The summary must be ATS-friendly with no fluff, emojis, or special symbols. Use confident but natural language suitable for software engineering, tech, or professional roles. Ensure the content is grammatically correct, well-structured, and impact-driven, focusing on skills, experience, and value. Do not add false experience or fake achievements. Do not change the core meaning of the user's content. Do not mention that AI was used. Keep the output limited to 3–4 short, strong sentences. Avoid unnecessary buzzwords and use action-oriented language. Output only the enhanced professional summary.
+    `;
+
     const response = await openai.chat.completions.create({
-      model: process.env.MODEL_NAME,
+      model,
       messages: [
-        {
-          role: "system",
-          content:
-            "You are a professional resume writer and ATS optimization expert. Your task is to rewrite and enhance the user's professional summary to make it clear, concise, and professional. The summary must be ATS-friendly with no fluff, emojis, or special symbols. Use confident but natural language suitable for software engineering, tech, or professional roles. Ensure the content is grammatically correct, well-structured, and impact-driven, focusing on skills, experience, and value. Do not add false experience or fake achievements. Do not change the core meaning of the user's content. Do not mention that AI was used. Keep the output limited to 3–4 short, strong sentences. Avoid unnecessary buzzwords and use action-oriented language. Output only the enhanced professional summary.",
-        },
-        {
-          role: "user",
-          content: userContent,
-        },
-      ],
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userContent }
+      ]
     });
-    const ehancedSolution = response.choices[0].message.content;
-    return res.status(200).json({ ehancedSolution });
+
+    const enhancedSolution = response.choices[0].message.content;
+    return res.status(200).json({ enhancedSolution });
   } catch (error) {
-    return res.status(400).json({ message: error.message });
+    console.error("AI enhance error:", error);
+    return res.status(400).json({ message: error.message, stack: error.stack });
   }
 };
 
