@@ -87,33 +87,40 @@ export const updateResumeHandler = async (req, res) => {
     const userId = req.userId;
     const { resumeId, resumeData, removeBackground } = req.body;
     const image = req.file;
-    const resumecpy = JSON.parse(JSON.stringify(resumeData  )); 
-
+    let resumeDataCopy;
+       if(typeof resumeData==='string'){
+        resumeDataCopy=await JSON.parse(resumeData)
+       }else{
+        resumeDataCopy=structuredClone(resumeData)
+       }
     if (image) {
       let bufferData = fs.createReadStream(image.path);
-
       const response = await imageKit.files.upload({
         file: bufferData,
         fileName: "resumes.png",
         folder: "user-resumes",
         transformation: {
           pre:
-            "w-300 ,h-300,fo-face,z-0.75 " +
-            (removeBackground ? ",e-bgremove" : ""),
+            "w-300 ,h-300,fo-face,z-0.75" + (removeBackground ? ",e-bgremove" : ""),
         },
       });
-      resumecpy.personal_info.image = response.url;
+      resumeDataCopy.personal_info.image = response.url;
     }
+    // Debug logs
+    console.log('updateResumeHandler debug:', {
+      userId,
+      resumeId,
+      resumeDataCopy
+    });
 
     const resume = await Resume.findByIdAndUpdate(
       { userId, _id: resumeId },
-      resumecpy,
+      resumeDataCopy,
       { new: true },
     );
     return res.status(200).json({ message: "Saved Succesfully ", resume });
   } catch (error) {
-    console.error("failed to update the resume ");
-
-    return res.status(400).json({ message: "Failed to update resume ", error });
+    console.error("failed to update the resume", error);
+    return res.status(400).json({ message: "Failed to update resume", error: error.message, stack: error.stack });
   }
 };

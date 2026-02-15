@@ -33,13 +33,13 @@ import ExperienceForm from "../components/ExperienceForm.jsx";
 import Education from "../components/Education.jsx";
 import Project from "../components/Project.jsx";
 import SkillsForm from "../components/SkillsForm.jsx";
-import {useSelector} from "react-redux"
+import { useSelector } from "react-redux";
 import api from "../../configs/api";
-
+import toast from "react-hot-toast";
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
-  const {token}=useSelector(state=>state.auth)
+  const { token } = useSelector((state) => state.auth);
 
   const [resumeData, setresumeData] = useState({
     _id: "",
@@ -54,21 +54,20 @@ const ResumeBuilder = () => {
     accent_color: "#3B82F6",
     public: false,
   });
-     
-  const loadExistingResume = async (resumeId) => {
-  try {
-      const {data}=await api.get('/api/resume/get/'+resumeId ,
-        {headers:{Authorization:`Bearer ${token}`}})
-        if(data.resume){
-          setresumeData(data.resume)
-          document.title=data.resume.title
-        } 
 
-  } catch (error) {
-    console.log(error.message);
-    
-  }
-    };
+  const loadExistingResume = async (resumeId) => {
+    try {
+      const { data } = await api.get("/api/resume/get/" + resumeId, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (data.resume) {
+        setresumeData(data.resume);
+        document.title = data.resume.title;
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   useEffect(() => {
     if (resumeId) {
@@ -78,26 +77,46 @@ const ResumeBuilder = () => {
     console.log("dummy data:", dummyResumeData);
   }, [resumeId]);
 
- const changeResumeVsibilty=async()=>{
-  setresumeData({...resumeData , public:!resumeData.public})
- }
- const handleShare=async()=>{
-  const frontendURL=window.location.href.split("/app/")[0];
-  const resumeUrl=frontendURL+"/view/" +resumeId;
+  const changeResumeVsibilty = async () => {
+    // setresumeData({...resumeData , public:!resumeData.public})
+    //upar vali line baas frontend par edit kar rahi thii 
 
-  if (navigator.share) {
-    navigator.share({url:resumeUrl,text:"My Resume"},)
-  }
-  else{
-    alert("Share is not available on thsi browser . ")
-  }
- }
+    try {
+      const formData = new formData();
+      formData.append("resumeId", resumeId);
+      formData.append(
+        "resumeData",
+        JSON.stringify({ public: !resumeData.public }),
+      );
 
-  const downloadResume=async()=>{
-    console.log("Dowload Hit , Window",window);
-     await window.print();
-     
-  }
+      const { data } = await api.put("resume/data/update", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setresumeData({ ...resumeData, public: !resumeData.public });
+      toast.success(data.message)
+    } catch (error) {
+      console.error("Error saving resume : ",error);
+      
+    }
+  };
+  const handleShare = async () => {
+    const frontendURL = window.location.href.split("/app/")[0];
+    const resumeUrl = frontendURL + "/view/" + resumeId;
+
+    if (navigator.share) {
+      navigator.share({ url: resumeUrl, text: "My Resume" });
+    } else {
+      alert("Share is not available on thsi browser . ");
+    }
+  };
+
+  const downloadResume = async () => {
+    console.log("Dowload Hit , Window", window);
+    await window.print();
+  };
   const [activeSectionIndex, setactiveSectionIndex] = useState(0);
   const [removeBackgorund, setremoveBackgorund] = useState(false);
 
@@ -112,21 +131,57 @@ const ResumeBuilder = () => {
 
   const activeSection = sections[activeSectionIndex];
 
-  const handleSaveChanges = async () => {
+  // const handleSaveChanges = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     await api.put(
+  //       "/api/resume/update",
+  //       {
+  //         resumeId,
+  //         resumeData: JSON.stringify(resumeData),
+  //         removeBackground: removeBackgorund,
+  //       },
+  //       {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       },
+  //     );
+  //     alert("Resume saved successfully!");
+  //   } catch (error) {
+  //     alert(error?.response?.data?.message || error.message);
+  //   }
+  // };
+
+  const saveResume=async()=>{
     try {
-      const token = localStorage.getItem('token');
-      await api.put('/api/resume/update', {
-        resumeId,
-        resumeData: JSON.stringify(resumeData),
-        removeBackground: removeBackgorund,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
+      let updatedResumeData=structuredClone(resumeData)
+
+      //remove image from updatedResumeData
+
+      if(typeof resumeData.personal_info.image==='object'){
+        delete  updatedResumeData.personal_info.image
+      }
+
+      const formData=new FormData();
+      formData.append("resumeId",resumeId)
+      formData.append("resumeData",JSON.stringify(updatedResumeData))
+      removeBackgorund &&  formData.append('removeBackground','yes')
+      typeof resumeData.personal_info.image==='object' &&
+      formData.append("image",resumeData.personal_info.image) 
+      
+        const { data } = await api.put("api/resume/update", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      alert('Resume saved successfully!');
+
+      setresumeData(data.resume);
+      toast.success(data.message)
     } catch (error) {
-      alert(error?.response?.data?.message || error.message);
+      console.log("Error saving resume : ",error);
+      
     }
-  };
+  }
+
   return (
     <div>
       <div className="max-w-7xl   mx-auto py-6 px-4">
@@ -264,7 +319,7 @@ const ResumeBuilder = () => {
             </div>
             <button
               className="bg-gradient-to-br from-green-100 to-green-200  ring-green-200 rounded-md ring-2 text-sm px-6 py-2 text-green-600 hover:ring-green-400 hover=bg mt-6 transition-all"
-              onClick={handleSaveChanges}
+              onClick={()=>{toast.promise(saveResume,{loading:'Saving...'})}}
             >
               Save Changes
             </button>
@@ -279,7 +334,8 @@ const ResumeBuilder = () => {
               flex item-center  justify-end gap-2 "
               >
                 {resumeData.public && (
-                  <button onClick={handleShare}
+                  <button
+                    onClick={handleShare}
                     className=" flex  gap-2   items-center bg-gradient-to-br from-blue-100 to-blue-200  ring-green-200
             rounded-lg ring-blue-300  text-xs px-4 p-2 text-blue-600 hover:ring transition-all "
                   >
@@ -287,22 +343,25 @@ const ResumeBuilder = () => {
                     <p className="text-xs *:">Share</p>
                   </button>
                 )}
-                <button onClick={changeResumeVsibilty}
+                <button
+                  onClick={changeResumeVsibilty}
                   className="flex gap-2 items-center bg-gradient-to-br from-purple-100 to-purple-200  ring-purple-200
             rounded-lg ring-purple-300  text-xs px-4 p-2 text-purple-600 hover:ring transition-all "
                 >
                   {resumeData.public ? (
                     <EyeIcon className="size-4" />
-
                   ) : (
                     <EyeOff className="size-4" />
                   )}
                   {resumeData.public ? "Public" : "Private"}
                 </button>
-                <button onClick={downloadResume} className="flex gap-2 items-center rounded-lg  bg-gradient-to-br from-green-100 to-green-300
-                 ring-green-300 text-xs hover:ring px-4 p-2 transition-colors ">
-                  <DownloadIcon className="size-4"/>
-                  <p>Download</p>   
+                <button
+                  onClick={downloadResume}
+                  className="flex gap-2 items-center rounded-lg  bg-gradient-to-br from-green-100 to-green-300
+                 ring-green-300 text-xs hover:ring px-4 p-2 transition-colors "
+                >
+                  <DownloadIcon className="size-4" />
+                  <p>Download</p>
                 </button>
               </div>
             </div>

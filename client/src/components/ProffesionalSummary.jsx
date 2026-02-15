@@ -1,17 +1,45 @@
-import { Sparkle, Sparkles } from 'lucide-react'
+import { Loader2, Sparkle, Sparkles, TableRowsSplit } from 'lucide-react'
 import React from 'react'
-
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import toast from 'react-hot-toast'
+import api from '../../configs/api'
 const ProffesionalSummary = ({data, setResumeData, onChange}) => {
-  return (
+  
+    const {token}=useSelector(state=>state.auth)
+    const [isGenerating, setisGenerating]=useState(false)
+
+    const generateSummary=async ()=>{
+        try {
+            setisGenerating(true)
+            const prompt=`enhance my porffesional summary "${data}"`;
+            const response=await api.post('/api/ai/enhance-pro-sum',{
+                userContent:prompt},
+                {headers:{Authorization:`Bearer ${token}`}})
+                setResumeData(prev=>({...prev, ProffesionalSummary:response.data.enhancedContent}))
+        } catch (error) {
+              toast.error(error?.response?.data?.mesage || error.message)            
+        }
+        finally{
+            setisGenerating(false)
+        }
+    }
+  
+    return (
     <div className=' py-4 space-y-4 '>
         <div className='flex justify-between  items-center '>
             <div className=''>
                <h3 className='flex items-center gap-2 text-lg font-semibold text-gray-900'>Proffesional Summary</h3>
             </div>
-            <button className='inline-flex items-center px-3  py-1 gap-2  bg-purple-200 text-purple-600 rounded
-            text-sm hover:bg-purple-300 border border-transparent    hover:border-purple-900 transition-colors disabled:opcaity-50 disabled:cursor-not-allowed'  >
-                AI Inhance
-                <Sparkles className='size-4 '/>
+            <button disabled={isGenerating} onClick={generateSummary} className='inline-flex items-center px-3  py-1 gap-2  bg-purple-200 text-purple-600 rounded
+            text-sm hover:bg-purple-300 border border-transparent    hover:border-purple-900 transition-colors disabled:opcaity-50 disabled:cursor-not-allowed'
+               >
+                {isGenerating ? (<Loader2 className='size-4 animate-spin' />):(
+
+                    <Sparkles className='size-4 '/>
+                  )}
+                    {isGenerating ? "Ehancing...":"AI Ehance"}
+                
             </button>
         </div>
             <div className='mt-6'>
