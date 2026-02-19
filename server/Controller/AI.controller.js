@@ -7,6 +7,40 @@ import OpenAI from "openai";
 import openai from "../config/ai.js";
 //POST:/api/ai/ehance-pro-sum
 
+const normalizeResumeForDb = (resumeData) => {
+  const normalized = structuredClone(resumeData || {});
+  const personalInfo = normalized.personal_info || {};
+
+  if (normalized.professional_summary !== undefined) {
+    normalized.proffession_summary = normalized.professional_summary;
+    delete normalized.professional_summary;
+  }
+
+  if (personalInfo.profession !== undefined) {
+    personalInfo.proffesion = personalInfo.profession;
+    delete personalInfo.profession;
+  }
+  normalized.personal_info = personalInfo;
+
+  if (Array.isArray(normalized.experience)) {
+    normalized.experience = normalized.experience.map((exp) => {
+      const mapped = { ...exp };
+      if (mapped.position !== undefined) {
+        mapped.positon = mapped.position;
+        delete mapped.position;
+      }
+      return mapped;
+    });
+  }
+
+  if (Array.isArray(normalized.project) && !Array.isArray(normalized.projects)) {
+    normalized.projects = normalized.project;
+  }
+  delete normalized.project;
+
+  return normalized;
+};
+
 export const enhanceProfessionalSummary = async (req, res) => {
   try {
     const { userContent } = req.body;
@@ -166,7 +200,7 @@ ${resumeText}
     console.log("MODEL:", process.env.MODEL_NAME);
 
     const extractedData = response.choices[0].message.content;
-    const parsedExtratedData = JSON.parse(extractedData);
+    const parsedExtratedData = normalizeResumeForDb(JSON.parse(extractedData));
 
     const newResume = await Resume.create({
       userId,

@@ -57,7 +57,7 @@ const ResumeBuilder = () => {
 
   const loadExistingResume = async (resumeId) => {
     try {
-      const { data } = await api.get("/api/resume/get/" + resumeId, {
+      const { data } = await api.get("/api/resume/getResumeById/" + resumeId, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (data.resume) {
@@ -70,12 +70,12 @@ const ResumeBuilder = () => {
   };
 
   useEffect(() => {
-    if (resumeId) {
+    if (resumeId && token) {
       loadExistingResume(resumeId);
     }
     console.log("resumeId:", resumeId);
     console.log("dummy data:", dummyResumeData);
-  }, [resumeId]);
+  }, [resumeId, token]);
 
   const changeResumeVsibilty = async () => {
     // setresumeData({...resumeData , public:!resumeData.public})
