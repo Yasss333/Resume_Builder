@@ -13,6 +13,8 @@ Resume_Builder is a full-stack, AI-based resume builder that helps users create 
 - Multiple modern resume templates
 - Multiple resume versions per user
 - PDF-friendly resume preview and export flow
+- Resume visibility control with public/private sharing
+- Public resume browser on dashboard for viewing shared resumes
 - Profile photo upload and processing support
 - JWT-based authentication with secure password hashing
 
