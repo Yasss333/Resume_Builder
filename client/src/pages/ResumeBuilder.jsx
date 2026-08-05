@@ -84,28 +84,26 @@ const ResumeBuilder = () => {
     console.log("dummy data:", dummyResumeData);
   }, [resumeId, token]);
 
-  const changeResumeVsibilty = async () => {
-    // setresumeData({...resumeData , public:!resumeData.public})
-    //upar vali line baas frontend par edit kar rahi thii
-
+  const changeResumeVisibility = async () => {
     try {
-      const formData = new formData();
-      formData.append("resumeId", resumeId);
-      formData.append(
-        "resumeData",
-        JSON.stringify({ public: !resumeData.public }),
-      );
-
-      const { data } = await api.put("resume/data/update", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const { data } = await api.put(
+        "/api/resume/update",
+        {
+          resumeId,
+          resumeData: JSON.stringify({ public: !resumeData.public }),
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       setresumeData({ ...resumeData, public: !resumeData.public });
       toast.success(data.message);
     } catch (error) {
       console.error("Error saving resume : ", error);
+      toast.error(error?.response?.data?.message || error.message || "Unable to toggle visibility");
     }
   };
   const handleShare = async () => {
@@ -174,7 +172,7 @@ const ResumeBuilder = () => {
       typeof resumeData.personal_info.image === "object" &&
         formData.append("image", resumeData.personal_info.image);
 
-      const { data } = await api.put("api/resume/update", formData, {
+      const { data } = await api.put("/api/resume/update", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -351,7 +349,7 @@ const ResumeBuilder = () => {
                   </button>
                 )}
                 <button
-                  onClick={changeResumeVsibilty}
+                  onClick={changeResumeVisibility}
                   className="flex gap-2 items-center bg-gradient-to-br from-purple-100 to-purple-200  ring-purple-200
             rounded-lg ring-purple-300  text-xs px-4 p-2 text-purple-600 hover:ring transition-all "
                 >

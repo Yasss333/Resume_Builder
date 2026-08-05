@@ -14,10 +14,10 @@ const Preview = () => {
     setresumeData(dummyResumeData.find((resume=>resume._id===resumeId || null)))
     setisLoading(false)
     try {
-      const{data}=await api.get('/api/resumes/public/'+resumeId)
-      setresumeData(data.resume )
+      const { data } = await api.get('/api/resume/getPublicResumeById/' + resumeId)
+      setresumeData(data.resume)
     } catch (error) {
-     console.log(error.message);
+      console.log(error.message);
     }
     finally{
 

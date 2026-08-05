@@ -73,7 +73,10 @@ const ResumeSchema= new mongoose.Schema({
             field:{type:String},
              gpa:{type:Number},
         }
-       ]
+       ],
+        // title: { type: String, default: "Untitled-resume" },
+  profile: { type: String, default: "" }, // new field
+//   public: { type: Boolean, default: false },
 },{timestamps:true,minimize:false});
 
 

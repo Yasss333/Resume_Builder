@@ -63,15 +63,15 @@ const normalizeResumeForDb = (resumeData) => {
 
 //POST :/api/resumes/create
 export const createResumeHandler = async (req, res) => {
-  //get titel , userid form middlw ware , ceate , //return respsne
+  //get title, userId from middleware, create resume, and return response
   try {
     const userId = req.userId;
-    const { title } = req.body;
+    const { title, profile } = req.body;
 
-    const resume = await Resume.create({ userId, title });
+    const resume = await Resume.create({ userId, title, profile });
     return res
       .status(200)
-      .json({ message: "Succesfully created your resume", resume: resume });
+      .json({ message: "Successfully created your resume", resume: resume });
   } catch (error) {
     return res
       .status(400)
@@ -122,23 +122,45 @@ export const getResumeById = async (req, res) => {
 
 export const getPublicResumeById = async (req, res) => {
   try {
-    const userId = req.userId;
     const { resumeId } = req.params;
     const resume = await Resume.findOne({ public: true, _id: resumeId });
     if (!resume) {
       return res
         .status(401)
-        .json({ message: "Either resume not public or no such hresume " });
+        .json({ message: "Either resume not public or no such resume." });
     }
 
-    return res.status(200).json({ resume });
+    return res.status(200).json({ resume: normalizeResumeForClient(resume) });
   } catch (error) {
     return res
       .status(400)
       .json({
-        message: "Failed to get the this public resume ",
+        message: "Failed to get this public resume.",
         error: error.message,
       });
+  }
+};
+
+export const getPublicResumesHandler = async (req, res) => {
+  try {
+    const resumes = await Resume.find({ public: true })
+      .sort({ updatedAt: -1 })
+      .populate("userId", "name");
+
+    const publicResumes = resumes.map((resume) => ({
+      _id: resume._id,
+      title: resume.title,
+      profile: resume.profile,
+      personal_info: resume.personal_info,
+      updatedAt: resume.updatedAt,
+      userName: resume.userId?.name || "Unknown",
+    }));
+
+    return res.status(200).json({ resumes: publicResumes });
+  } catch (error) {
+    return res
+      .status(400)
+      .json({ message: "Failed to fetch public resumes", error: error.message });
   }
 };
 
