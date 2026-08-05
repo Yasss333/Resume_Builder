@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
+import InterviewModal from "../components/InterviewModal";
+// ...
 import { useParams, Link, useAsyncError } from "react-router-dom";
 import { dummyResumeData } from "../assets/assets";
+import ATSModal from "../components/ATSModal";
 import {
   AppWindow,
   ArrowLeft,
@@ -36,11 +39,14 @@ import SkillsForm from "../components/SkillsForm.jsx";
 import { useSelector } from "react-redux";
 import api from "../../configs/api";
 import toast from "react-hot-toast";
+import CoverLetterModal from "../components/CoverLetterModal.jsx";
+
 
 const ResumeBuilder = () => {
   const { resumeId } = useParams();
   const { token } = useSelector((state) => state.auth);
-
+  const [showATSModal, setShowATSModal] = useState(false);
+  const [showCoverLetterModal, setShowCoverLetterModal] = useState(false);
   const [resumeData, setresumeData] = useState({
     _id: "",
     title: "",
@@ -54,6 +60,7 @@ const ResumeBuilder = () => {
     accent_color: "#3B82F6",
     public: false,
   });
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
 
   const loadExistingResume = async (resumeId) => {
     try {
@@ -79,7 +86,7 @@ const ResumeBuilder = () => {
 
   const changeResumeVsibilty = async () => {
     // setresumeData({...resumeData , public:!resumeData.public})
-    //upar vali line baas frontend par edit kar rahi thii 
+    //upar vali line baas frontend par edit kar rahi thii
 
     try {
       const formData = new formData();
@@ -96,10 +103,9 @@ const ResumeBuilder = () => {
       });
 
       setresumeData({ ...resumeData, public: !resumeData.public });
-      toast.success(data.message)
+      toast.success(data.message);
     } catch (error) {
-      console.error("Error saving resume : ",error);
-      
+      console.error("Error saving resume : ", error);
     }
   };
   const handleShare = async () => {
@@ -151,36 +157,35 @@ const ResumeBuilder = () => {
   //   }
   // };
 
-  const saveResume=async()=>{
+  const saveResume = async () => {
     try {
-      let updatedResumeData=structuredClone(resumeData)
+      let updatedResumeData = structuredClone(resumeData);
 
       //remove image from updatedResumeData
 
-      if(typeof resumeData.personal_info.image==='object'){
-        delete  updatedResumeData.personal_info.image
+      if (typeof resumeData.personal_info.image === "object") {
+        delete updatedResumeData.personal_info.image;
       }
 
-      const formData=new FormData();
-      formData.append("resumeId",resumeId)
-      formData.append("resumeData",JSON.stringify(updatedResumeData))
-      removeBackgorund &&  formData.append('removeBackground','yes')
-      typeof resumeData.personal_info.image==='object' &&
-      formData.append("image",resumeData.personal_info.image) 
-      
-        const { data } = await api.put("api/resume/update", formData, {
+      const formData = new FormData();
+      formData.append("resumeId", resumeId);
+      formData.append("resumeData", JSON.stringify(updatedResumeData));
+      removeBackgorund && formData.append("removeBackground", "yes");
+      typeof resumeData.personal_info.image === "object" &&
+        formData.append("image", resumeData.personal_info.image);
+
+      const { data } = await api.put("api/resume/update", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       setresumeData(data.resume);
-      toast.success(data.message)
+      toast.success(data.message);
     } catch (error) {
-      console.log("Error saving resume : ",error);
-      
+      console.log("Error saving resume : ", error);
     }
-  }
+  };
 
   return (
     <div>
@@ -319,7 +324,9 @@ const ResumeBuilder = () => {
             </div>
             <button
               className="bg-gradient-to-br from-green-100 to-green-200  ring-green-200 rounded-md ring-2 text-sm px-6 py-2 text-green-600 hover:ring-green-400 hover=bg mt-6 transition-all"
-              onClick={()=>{toast.promise(saveResume,{loading:'Saving...'})}}
+              onClick={() => {
+                toast.promise(saveResume, { loading: "Saving..." });
+              }}
             >
               Save Changes
             </button>
@@ -356,6 +363,21 @@ const ResumeBuilder = () => {
                   {resumeData.public ? "Public" : "Private"}
                 </button>
                 <button
+                  onClick={() => setShowATSModal(true)}
+                  className="flex gap-2 items-center rounded-lg bg-gradient-to-br from-purple-100 to-purple-300 ring-purple-300 text-xs hover:ring px-4 p-2 transition-colors"
+                >
+                  <span>🎯</span>
+                  <p>ATS Score</p>
+                </button>
+                //Interview question
+                <button
+  onClick={() => setShowInterviewModal(true)}
+  className="flex items-center gap-1 rounded-lg bg-gradient-to-br from-indigo-100 to-indigo-300 ring-indigo-300 text-xs hover:ring px-3 py-2 transition"
+>
+  Test Yourself
+</button>
+                {/* -------dowload Preview---------- */}
+                <button
                   onClick={downloadResume}
                   className="flex gap-2 items-center rounded-lg  bg-gradient-to-br from-green-100 to-green-300
                  ring-green-300 text-xs hover:ring px-4 p-2 transition-colors "
@@ -365,12 +387,37 @@ const ResumeBuilder = () => {
                 </button>
               </div>
             </div>
+            {/* -------Cover leter---------- */}
+            <button
+  onClick={() => setShowCoverLetterModal(true)}
+  className="flex gap-2 items-center rounded-lg bg-gradient-to-br from-green-100 to-green-300 ring-green-300 text-xs hover:ring px-4 p-2 transition-colors"
+>
+  <span>📝</span>
+  <p>Cover Letter</p>
+</button>
             {/* -------Resume Preview---------- */}
             <ResumePreview
               data={resumeData}
               template={resumeData.template}
               accentColor={resumeData.accent_color}
             />
+            <ATSModal
+  isOpen={showATSModal}
+  onClose={() => setShowATSModal(false)}
+  resumeId={resumeId}
+/>
+
+<InterviewModal
+  isOpen={showInterviewModal}
+  onClose={() => setShowInterviewModal(false)}
+  resumeId={resumeId}
+/>
+<CoverLetterModal
+  isOpen={showCoverLetterModal}
+  onClose={() => setShowCoverLetterModal(false)}
+  resumeId={resumeId}
+  user={resumeData.personal_info}
+/>
           </div>
         </div>
       </div>

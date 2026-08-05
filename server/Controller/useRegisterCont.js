@@ -57,11 +57,10 @@ export const loginUser=async(req,res)=>{
         if(!user){
             return res.status(400).json({Message:"passord or email is wrong entered"})
         }
-
-      if(!user.isPasswordCorrect(password)){
-        return res.status(401).json({message:"Wrong password please try again"})
-      }
-
+const isMatch = await user.isPasswordCorrect(password);
+if (!isMatch) {
+  return res.status(401).json({ message: "Wrong password please try again" });
+}
       const token =generateToken(user._id);
       user.password=undefined;
       return res.status(200).json({message:"LOgin succesfull",token,user})

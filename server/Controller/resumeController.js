@@ -123,7 +123,7 @@ export const getResumeById = async (req, res) => {
 export const getPublicResumeById = async (req, res) => {
   try {
     const userId = req.userId;
-    const { resumeId } = req.parmas;
+    const { resumeId } = req.params;
     const resume = await Resume.findOne({ public: true, _id: resumeId });
     if (!resume) {
       return res
@@ -183,7 +183,7 @@ export const updateResumeHandler = async (req, res) => {
       resumeDataCopy
     });
 
-    const resume = await Resume.findByIdAndUpdate(
+    const resume = await Resume.findOneAndUpdate(
       { userId, _id: resumeId },
       resumeDataCopy,
       { new: true },

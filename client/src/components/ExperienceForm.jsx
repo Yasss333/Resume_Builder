@@ -3,6 +3,7 @@ import { Briefcase, Loader2, Plus, Sparkles, Trash2 } from "lucide-react";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import api from '../../configs/api';
 
 const ExperienceForm = ({ data, onChange }) => {
 
@@ -36,24 +37,27 @@ const ExperienceForm = ({ data, onChange }) => {
     onChange(updated);
   };
 
-  const generateDescription=async(index)=>{
-    setgenerateIndex(index)
-    const experience=data[index]
-    const prompt=`enhance this job  descritopn ${experience.description} for the 
-    position of ${experience.position}  at ${experience.company} `
-  
-    try {
-          const response=await api.post('/api/ai/enhance-job-desc',{
-                    userContent:prompt},
-                    {headers:{Authorization:`Bearer ${token}`}})
-                    updateExperience(index, "description",data.enhanceSolution)
-    } catch (error) {
-      toast.error(error.message)
-    }finally{
-      setgenerateIndex(-1)
-    }
-  
+
+
+const generateDescription = async (index) => {
+  setgenerateIndex(index);
+  const experience = data[index];
+  const prompt = `enhance this job description "${experience.description}" for the position of "${experience.position}" at "${experience.company}"`;
+
+  try {
+    const response = await api.post(
+      '/api/ai/enhance-pro-desc',
+      { userContent: prompt },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    // backend now returns enhancedSolution
+    updateExperience(index, "description", response.data.enhancedSolution);
+  } catch (error) {
+    toast.error(error?.response?.data?.message || error.message);
+  } finally {
+    setgenerateIndex(-1);
   }
+};
 
 
   return (

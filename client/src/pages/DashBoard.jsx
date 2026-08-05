@@ -72,27 +72,65 @@ const DashBoard = () => {
     setisLoading(true);
     try {
       console.log("Selected file:", resume);
-      const resumeText = await pdfToText(resume);
-      console.log(typeof resumeText);
+      
+      // Validate file selection
+      if (!resume) {
+        toast.error("Please select a PDF file");
+        setisLoading(false);
+        return;
+      }
 
-      console.log("Extracted text:", resumeText);
-      // const resumeText = "Test resume content";
+      // Validate file type
+      if (resume.type !== "application/pdf") {
+        toast.error("Please upload a valid PDF file");
+        setisLoading(false);
+        return;
+      }
+
+      // Extract text from PDF
+      let resumeText;
+      try {
+        resumeText = await pdfToText(resume);
+      } catch (pdfError) {
+        console.error("PDF parsing error:", pdfError);
+        toast.error("Failed to parse PDF. Please ensure it's a valid PDF file.");
+        setisLoading(false);
+        return;
+      }
+
+      // Validate extracted text
+      if (!resumeText || typeof resumeText !== "string" || resumeText.trim().length === 0) {
+        toast.error("Could not extract text from PDF. Please ensure the PDF contains readable text.");
+        setisLoading(false);
+        return;
+      }
+
+      console.log("Extracted text length:", resumeText.length);
+      console.log("First 200 chars:", resumeText.substring(0, 200));
 
       const { data } = await api.post(
         "api/ai/upload-resume",
         { title, resumeText },
         { headers: { Authorization: `Bearer ${token}` } },
       );
+      
+      if (!data || !data.resumeId) {
+        toast.error("Invalid response from server");
+        setisLoading(false);
+        return;
+      }
+
       settitle("");
       setresume(null);
       setuploadresume(false);
+      toast.success("Resume uploaded successfully!");
       navigate(`/app/builder/${data.resumeId}`);
     } catch (error) {
-      toast.error(error?.response?.data?.message || error.message);
+      console.error("Upload error:", error);
+      toast.error(error?.response?.data?.message || error.message || "Failed to upload resume");
+    } finally {
+      setisLoading(false);
     }
-    setisLoading(false);
-    // setuploadresume(false);
-    // navigate(`app/builder/res123`)
   };
   const editTitle = async (e) => {
     try {
